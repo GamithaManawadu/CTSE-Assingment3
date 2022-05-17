@@ -50,7 +50,7 @@ jobs:
           context: .
           file: ./productService/Dockerfile
           push: true
-          tags: ${{ secrets.SANDUNIDOCKER_USERNAME }}/productservice:${{ github.sha }}
+          tags: ${{ secrets.SANDUNIDOCKER_USERNAME }}/prodcutservice:${{ github.sha }}
 
   delivery-service:
     runs-on: ubuntu-latest
