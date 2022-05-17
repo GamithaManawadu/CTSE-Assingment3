@@ -1,6 +1,6 @@
 FROM node:16-alpine
 WORKDIR /app
-COPY deliveyService/package*.json ./
+COPY delivey-service/package*.json ./
 
 RUN npm install
 
