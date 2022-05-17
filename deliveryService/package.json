@@ -1,5 +1,5 @@
 {
-	"name": "icaf-backend",
+	"name": "delivery-service",
 	"version": "1.0.0",
 	"description": "",
 	"main": "server.js",
