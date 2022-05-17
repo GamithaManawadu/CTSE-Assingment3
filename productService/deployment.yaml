@@ -1,0 +1,35 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productservice
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: productservice
+    spec:
+      containers:
+      - name: productservice
+        image: snowflake31/prodcutservice:latest
+        ports:
+        - containerPort: 8081
+        env:
+        - name: ASPNETCORE_URLS
+          value: http://*:8081
+  selector:
+    matchLabels:
+      app: productservice
+---
+#service.yaml Starts here
+apiVersion: v1
+kind: Service
+metadata:
+  name: productservice
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8081
+  selector:
+    app: productservice
