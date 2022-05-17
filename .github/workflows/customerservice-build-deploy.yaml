@@ -6,6 +6,14 @@ name: CI
 on:
   push:
     branches: [main]
+    
+env:
+  REGISTRY_NAME: customerserviceregistry
+  CLUSTER_NAME: customerserviceCluster
+  CLUSTER_RESOURCE_GROUP: customerserviceResources
+  NAMESPACE: default
+  APP_NAME: customerservice
+  
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,3 +33,36 @@ jobs:
           file: ./customerService/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/customerservice:${{ github.sha }}
+          
+          # Set the target Azure Kubernetes Service (AKS) cluster. 
+      - uses: azure/aks-set-context@v1
+        with:
+         creds: '${{ secrets.AZURE_CREDENTIALS }}'
+         cluster-name: ${{ env.CLUSTER_NAME }}
+         resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
+    
+    # Create namespace if doesn't exist
+      - run: |
+         kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o json | kubectl apply -f -
+    
+    # Create image pull secret for ACR
+      - uses: azure/k8s-create-secret@v1
+        with:
+         container-registry-url: ${{ env.REGISTRY_NAME }}.azurecr.io
+         container-registry-username: ${{ secrets.DOCKER_HUB_USERNAME }}
+         container-registry-password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+        
+         namespace: ${{ env.NAMESPACE }}
+         arguments: --force true
+    
+    # Deploy app to AKS
+      - uses: azure/k8s-deploy@v1
+        with:
+         manifests: |
+          ${{ github.workspace }}/manifests/deployment.yaml
+          ${{ github.workspace }}/manifests/service.yaml
+         images: |
+          ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
+         imagepullsecrets: |
+         
+         namespace: ${{ env.NAMESPACE }}
