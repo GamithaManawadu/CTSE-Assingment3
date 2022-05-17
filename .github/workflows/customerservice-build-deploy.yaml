@@ -15,7 +15,7 @@ env:
   APP_NAME: customerservice
   
 jobs:
-  build:
+  customer-service:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
